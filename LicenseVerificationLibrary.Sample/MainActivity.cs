@@ -51,7 +51,7 @@
         // Generate your own 20 random bytes, and put them here.
         private static readonly byte[] Salt = new byte[]
             { 46, 65, 30, 128, 103, 57, 74, 64, 51, 88, 95, 45, 77, 117, 36, 113, 11, 32, 64, 89 };
-
+		private ServerManagedPolicy policy;
         private Button checkLicenseButton;
         private Button resetLicenseButton;
         private LicenseChecker checker;
@@ -67,7 +67,7 @@
 
             // Construct the LicenseChecker with a policy.
             var obfuscator = new AesObfuscator(Salt, this.PackageName, deviceId);
-            var policy = new ServerManagedPolicy(this, obfuscator);
+            policy = new ServerManagedPolicy(this, obfuscator);
             this.checker = new LicenseChecker(this, policy, Base64PublicKey);
 
 			this.checkLicenseButton = FindViewById<Button>(Resource.Id.checkButton);
@@ -96,11 +96,12 @@
                         this.StartActivity(marketIntent);
                     }
                 };
+			policy.ResetPolicy();
 
             var message = retry ? Resource.String.unlicensed_dialog_retry_body : Resource.String.unlicensed_dialog_body;
             var ok = retry ? Resource.String.retry_button : Resource.String.buy_button;
 
-            return new AlertDialog.Builder(this) // builder
+			return new AlertDialog.Builder(this) // builder
                 .SetTitle(Resource.String.unlicensed_dialog_title) // title
                 .SetMessage(message) // message
                 .SetPositiveButton(ok, eventHandler) // ok
